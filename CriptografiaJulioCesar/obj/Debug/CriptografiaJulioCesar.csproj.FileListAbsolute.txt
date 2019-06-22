@@ -1,0 +1,10 @@
+C:\Users\felip\Desktop\TADS\CODENATION CHALLENGE\CriptografiaJulioCesar\CriptografiaJulioCesar\bin\Debug\CriptografiaJulioCesar.exe.config
+C:\Users\felip\Desktop\TADS\CODENATION CHALLENGE\CriptografiaJulioCesar\CriptografiaJulioCesar\bin\Debug\CriptografiaJulioCesar.exe
+C:\Users\felip\Desktop\TADS\CODENATION CHALLENGE\CriptografiaJulioCesar\CriptografiaJulioCesar\bin\Debug\CriptografiaJulioCesar.pdb
+C:\Users\felip\Desktop\TADS\CODENATION CHALLENGE\CriptografiaJulioCesar\CriptografiaJulioCesar\obj\Debug\CriptografiaJulioCesar.csproj.CoreCompileInputs.cache
+C:\Users\felip\Desktop\TADS\CODENATION CHALLENGE\CriptografiaJulioCesar\CriptografiaJulioCesar\obj\Debug\CriptografiaJulioCesar.exe
+C:\Users\felip\Desktop\TADS\CODENATION CHALLENGE\CriptografiaJulioCesar\CriptografiaJulioCesar\obj\Debug\CriptografiaJulioCesar.pdb
+C:\Users\felip\Desktop\TADS\CODENATION CHALLENGE\CriptografiaJulioCesar\CriptografiaJulioCesar\obj\Debug\CriptografiaJulioCesar.csprojAssemblyReference.cache
+C:\Users\felip\Desktop\TADS\CODENATION CHALLENGE\CriptografiaJulioCesar\CriptografiaJulioCesar\bin\Debug\Newtonsoft.Json.dll
+C:\Users\felip\Desktop\TADS\CODENATION CHALLENGE\CriptografiaJulioCesar\CriptografiaJulioCesar\bin\Debug\Newtonsoft.Json.xml
+C:\Users\felip\Desktop\TADS\CODENATION CHALLENGE\CriptografiaJulioCesar\CriptografiaJulioCesar\obj\Debug\CriptografiaJulioCesar.csproj.CopyComplete

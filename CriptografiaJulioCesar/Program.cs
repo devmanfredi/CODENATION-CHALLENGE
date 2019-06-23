@@ -3,6 +3,8 @@ using System.Net;
 using System.IO;
 using Newtonsoft.Json;
 using System.Text;
+using System.Threading.Tasks;
+using System.Net.Http;
 
 namespace CriptografiaJulioCesar
 {
@@ -42,6 +44,7 @@ namespace CriptografiaJulioCesar
             Json jsonModel = JsonConvert.DeserializeObject<Json>(json_challenge);
             Descriptografa(jsonModel);
             ConverterObjetoParaJson(jsonModel);
+            //IMPRIMI O JSON SEM AQUELAS FORMATAÇÕES PADRÃO
             Console.WriteLine($"{jsonModel.numero_casas}\n{jsonModel.token}\n{jsonModel.cifrado}\n{jsonModel.decifrado}\n{jsonModel.resumo_criptografico}");
 
             //VERIFICAR SE ESTÁ PARECIDADA COM EXEMPLO
@@ -70,9 +73,9 @@ namespace CriptografiaJulioCesar
 
             string json = JsonConvert.SerializeObject(json_topico);
 
-            Post(json);
-
-            //Console.WriteLine(json);
+            //IMPRIME O JSON DE FATO
+            //ESTE QUE VAI PARA A API
+            Console.WriteLine(json);
         }
 
         #endregion
@@ -120,6 +123,7 @@ namespace CriptografiaJulioCesar
             des_crypt = des_crypt.Replace("\u001e", " ");
             Model.decifrado = des_crypt.ToLower();
 
+            //MANDO PARA FAZER O RESUMO CRIPTOGRÁFICO
             CalculateSHA1(Model);
 
 
@@ -164,7 +168,7 @@ namespace CriptografiaJulioCesar
         {
             try
             {
-                byte[] buffer = Encoding.Default.GetBytes(Resumo.cifrado);
+                byte[] buffer = Encoding.Default.GetBytes(Resumo.decifrado);
                 System.Security.Cryptography.SHA1CryptoServiceProvider cryptoTransformSHA1 = new System.Security.Cryptography.SHA1CryptoServiceProvider();
                 Resumo.resumo_criptografico = BitConverter.ToString(cryptoTransformSHA1.ComputeHash(buffer)).Replace("-", "");
             }
@@ -172,30 +176,33 @@ namespace CriptografiaJulioCesar
             {
                 throw new Exception(x.Message);
             }
+            //var request = HttpWebRequest.Create("");
         }
-        public  static string Post(string value)
+
+        /// <summary>
+        /// Cria uma pessoa
+        /// </summary>
+        /// <param name="person">Objeto 'Person'</param>
+        /// <returns></returns>
+        private async Task<bool> CreatePersonAsync(Json Model)
         {
-            var request = HttpWebRequest.Create("https://api.codenation.dev/v1/challenge/dev-ps/submit-solution?token=91e93d89f007589a868fabc78a7354db1b3564d0");
-            var byteData = Encoding.ASCII.GetBytes(value);
-            request.ContentType = "multipart/form-data";
-            request.ContentType = "application/json";
-            request.Method = "POST";
+            var client = new HttpClient();
+            client.BaseAddress = new Uri("https://api.codenation.dev/v1/challenge/dev-ps/submit-solution?token=91e93d89f007589a868fabc78a7354db1b3564d0");
+            client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
 
-            try
-            {
-                using (var stream = request.GetRequestStream())
-                {
-                    stream.Write(byteData, 0, byteData.Length);
-                }
-                var response = (HttpWebResponse)request.GetResponse();
-                var responseString = new StreamReader(response.GetResponseStream()).ReadToEnd();
+            // Transforma o objeto em json
+            string json = JsonConvert.SerializeObject(Model);
 
-                return responseString;
-            }
-            catch (WebException e)
+            // Envia o json para a API e verifica se obteve sucesso
+            HttpResponseMessage response = await client.PostAsync("Controller da sua API para criar a pessoa", new StringContent(json, Encoding.UTF8, "application/json"));
+            response.EnsureSuccessStatusCode();
+
+            if (response.IsSuccessStatusCode)
             {
-                return null;
+                return true;
             }
+
+            return false;
         }
     }
 

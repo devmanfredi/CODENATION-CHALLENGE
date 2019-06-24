@@ -2,7 +2,6 @@
 using System.Net;
 using System.IO;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Net.Http;
@@ -16,14 +15,36 @@ namespace CriptografiaJulioCesar
         //SNIPE 208
         static void Main(string[] args)
         {
-            //Requisição();
+            Requisição();
             Json challenge = LerObjetoDeArquivo();
             Descriptografa(challenge);
             ResumoSHA1(challenge);
             SalvarObjetoEmArquivo(challenge);
-            Enviar();
+            //string json_challenge = "{" +
+            //  " 'numero_casas':2, " +
+            //  " 'token':'91e93d89f007589a868fabc78a7354db1b3564d0'," +
+            //  " 'cifrado':'lwuv fq pqv etgcvg c hkng ecnngf -th. nctta ycnn'," +
+            //  " 'decifrado':''," +
+            //  " 'resumo_criptografico':'' " +
+            //  "}";
 
+            ////Json jsonModel = JsonConvert.DeserializeObject<Json>(json_challenge);
+            //Descriptografa(jsonModel);
+            //CalculateSHA1(jsonModel);
+            //SalvarObjetoEmArquivo(jsonModel);
+            ////CreatePerson(jsonModel);
+
+            //ConverterObjetoParaJson(jsonModel);
+            ////IMPRIMI O JSON SEM AQUELAS FORMATAÇÕES PADRÃO
+            //Console.WriteLine($"{jsonModel.numero_casas}\n{jsonModel.token}\n{jsonModel.cifrado}\n{jsonModel.decifrado}\n{jsonModel.resumo_criptografico}");
+
+            ////VERIFICAR SE ESTÁ PARECIDADA COM EXEMPLO
+            //string teste_codenation = "a ligeira raposa marrom saltou sobre o cachorro cansado 1a.a";
+            //Criptografa(teste_codenation,3);
+
+            Console.WriteLine(challenge);
         }
+
 
         /// <summary>
         /// FAZ A REQUISIÇÃO E SALVA O ARQUIVO JSON
@@ -49,7 +70,6 @@ namespace CriptografiaJulioCesar
                 JsonSerializer serializer = new JsonSerializer();
                 writer.Formatting = Formatting.Indented;
                 serializer.Serialize(writer, new_objResponse);
-
                 stream.Close();
 
                 streamDados.Close();
@@ -63,7 +83,7 @@ namespace CriptografiaJulioCesar
         /// </summary>
         /// <param name="objResponse"></param>
         /// <returns></returns>
-        static Json ConverteJsonParaObjeto(string objResponse)
+        static object ConverteJsonParaObjeto(string objResponse)
         {
             Json Model = JsonConvert.DeserializeObject<Json>(objResponse);
             return Model;
@@ -103,14 +123,7 @@ namespace CriptografiaJulioCesar
                 }
                 else
                 {
-                    if (c == 'a')
-                    {
-                        des_crypt += 'y';
-                    }
-                    else
-                    {
-                        des_crypt += (char)((int)(c - cifra));
-                    }
+                    des_crypt += (char)(c - cifra);
                 }
             }
 
@@ -129,7 +142,7 @@ namespace CriptografiaJulioCesar
             {
                 byte[] buffer = Encoding.Default.GetBytes(Model.decifrado);
                 System.Security.Cryptography.SHA1CryptoServiceProvider cryptoTransformSHA1 = new System.Security.Cryptography.SHA1CryptoServiceProvider();
-                Model.resumo_criptografico = BitConverter.ToString(cryptoTransformSHA1.ComputeHash(buffer)).ToLower().Replace("-","");
+                Model.resumo_criptografico = BitConverter.ToString(cryptoTransformSHA1.ComputeHash(buffer)).Replace("-", "");
             }
             catch (Exception x)
             {
@@ -153,37 +166,90 @@ namespace CriptografiaJulioCesar
 
             serializer.Serialize(writer, Model);
 
-            //PARA VER SE ESTÁ FORMATADO E COMPLETO.
-            var json = JsonConvert.SerializeObject(Model);
-            var _json = JValue.Parse(json).ToString(Formatting.Indented);
-
-            Console.WriteLine(_json);
-
-            Console.ReadKey();
-
-
             stream.Close();
         }
 
-        //AQUI COMEÇA O PROCESSO PARA ENVIAR O ARQUIVO
 
-        static void Enviar()
+
+        #region CONVERSÃO JSON
+
+        //static void ConverterJsonParaObjeto()
+        //{
+        //}
+        static void ConverterObjetoParaJson(Json json_Model)
         {
-            WebRequest request = WebRequest.Create("https://api.codenation.dev/v1/challenge/dev-ps/submit-solution?token=91e93d89f007589a868fabc78a7354db1b3564d0");
-            request.Method = "POST";
-            byte[] byteArray = File.ReadAllBytes("C:\\CodeNationChallenge\\answer.json");
-            request.ContentType = "multipart/form-data";
-            request.ContentLength = byteArray.Length;
+            Json json_topico = new Json()
+            {
+                numero_casas = json_Model.numero_casas,
+                token = json_Model.token,
+                cifrado = json_Model.cifrado,
+                decifrado = json_Model.decifrado,
+                resumo_criptografico = json_Model.resumo_criptografico,
+            };
 
-            Stream dataStream = request.GetRequestStream();
-            dataStream.Write(byteArray, 0, byteArray.Length);
-            dataStream.Close();
-            WebResponse response = request.GetResponse();
-            Console.WriteLine(((HttpWebResponse)response).StatusDescription);
-            //reader.Close();
-            dataStream.Close();
-            response.Close();
+            var json = JsonConvert.SerializeObject(json_topico);
+
+            //IMPRIME O JSON DE FATO
+            //ESTE QUE VAI PARA A API
+            Console.WriteLine(json);
+
         }
+
+        #endregion
+
+        static void Criptografa(string mensagem, int cifra)
+        {
+            //CRIPTOGRAFIA
+
+            string crypt = "";
+            foreach (char c in mensagem)
+            {
+                if (char.IsNumber(c) || char.IsPunctuation(c))
+                {
+                    crypt += (char)(c);
+                }
+                else
+                {
+                    crypt += (char)(c + cifra);
+                }
+            }
+            crypt = crypt.Replace("#", " ").ToLower();
+            Console.WriteLine(crypt);
+            DescriptografaString(crypt, 3);
+
+
+        }
+
+
+        //VERIFICAR SE ESTÁ PARECIDADA COM EXEMPLO
+        static void DescriptografaString(string mensagem, int cifra)
+        {
+            string des_crypt = "";
+            foreach (char c in mensagem)
+            {
+                if (char.IsNumber(c) || char.IsPunctuation(c))
+                {
+                    des_crypt += (char)(c);
+                }
+                else
+                {
+                    des_crypt += (char)(c - cifra);
+                }
+            }
+            des_crypt = des_crypt.Replace("\u001d", " ");
+            Console.WriteLine(des_crypt);
+            //Console.WriteLine();
+
+            //Console.WriteLine(des_crypt);
+
+            //ConverterObjetoParaJson(crypt, des_crypt);
+            //ConverterJsonParaObjeto(crypt, des_crypt);
+
+            //Console.ReadLine();
+        }
+
+        // Método para criar a pessoa e enviar para a Web API
+
 
         static async void CreatePerson(Json Model)
         {
@@ -226,9 +292,7 @@ namespace CriptografiaJulioCesar
 
             return false;
         }
-
     }
-
 
 }
 

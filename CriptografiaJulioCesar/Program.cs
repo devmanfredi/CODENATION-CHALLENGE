@@ -1,13 +1,10 @@
-﻿using System;
-using System.Net;
-using System.IO;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System;
+using System.Globalization;
+using System.IO;
+using System.Net;
 using System.Text;
-using System.Threading.Tasks;
-using System.Net.Http;
-using System.Net.Mime;
-using System.Collections.Generic;
 
 namespace CriptografiaJulioCesar
 {
@@ -21,7 +18,10 @@ namespace CriptografiaJulioCesar
             Descriptografa(challenge);
             ResumoSHA1(challenge);
             SalvarObjetoEmArquivo(challenge);
-            Enviar();
+            var ImprimeScore = Enviar();
+            Console.WriteLine(ImprimeScore.ToString());
+
+            Console.ReadKey();
 
         }
 
@@ -159,77 +159,46 @@ namespace CriptografiaJulioCesar
 
             Console.WriteLine(_json);
 
-            Console.ReadKey();
+            //Console.ReadKey();
 
 
             stream.Close();
         }
 
-        //AQUI COMEÇA O PROCESSO PARA ENVIAR O ARQUIVO
-
-        static void Enviar()
-        {
-            WebRequest request = WebRequest.Create("https://api.codenation.dev/v1/challenge/dev-ps/submit-solution?token=91e93d89f007589a868fabc78a7354db1b3564d0");
-            request.Method = "POST";
-            byte[] byteArray = File.ReadAllBytes("C:\\CodeNationChallenge\\answer.json");
-            request.ContentType = "multipart/form-data";
-            request.ContentLength = byteArray.Length;
-
-            Stream dataStream = request.GetRequestStream();
-            dataStream.Write(byteArray, 0, byteArray.Length);
-            dataStream.Close();
-            WebResponse response = request.GetResponse();
-            Console.WriteLine(((HttpWebResponse)response).StatusDescription);
-            //reader.Close();
-            dataStream.Close();
-            response.Close();
-        }
-
-        static async void CreatePerson(Json Model)
-        {
-
-            // Cria a pessoa e armazena o resultado
-            var isOK = await CreatePersonAsync(Model);
-
-            // Verifica se obteve sucesso
-            if (isOK)
-            {
-                // Pessoa criada com sucesso
-            }
-        }
-
         /// <summary>
-        /// Cria uma pessoa
+        /// ENVIA O ARQUIVO PARA A API E RETORNA O SCORE
         /// </summary>
-        /// <param name="person">Objeto 'Person'</param>
         /// <returns></returns>
-        static async Task<bool> CreatePersonAsync(Json Model)
+        static object Enviar()
         {
+            Json Model = LerObjetoDeArquivo();
 
-            //File answer = "answer.json";
-
-            var client = new HttpClient();
-            client.BaseAddress = new Uri("https://api.codenation.dev/v1/challenge/dev-ps/submit-solution?token=91e93d89f007589a868fabc78a7354db1b3564d0");
-            client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
-
-            // Transforma o objeto em json
             string json = JsonConvert.SerializeObject(Model);
+            var url = "https://api.codenation.dev/v1/challenge/dev-ps/submit-solution?token=91e93d89f007589a868fabc78a7354db1b3564d0";
+            var request = (HttpWebRequest)WebRequest.Create(url);
+            request.Method = "POST";
+            var boundary = "---------------------------" + DateTime.Now.Ticks.ToString("x", NumberFormatInfo.InvariantInfo);
+            request.ContentType = "multipart/form-data; boundary=" + boundary;
+            boundary = "--" + boundary;
 
-            // Envia o json para a API e verifica se obteve sucesso
-            HttpResponseMessage response = await client.PostAsync("CreatePerson", new StringContent(json, Encoding.UTF8, "application/json"));
-            response.EnsureSuccessStatusCode();
-
-            if (response.IsSuccessStatusCode)
+            using (var stream = request.GetRequestStream())
+            using (var writer = new StreamWriter(stream))
             {
-                return true;
+                writer.WriteLine(boundary);
+                writer.WriteLine("Content-Disposition: form-data; name=\"answer\"; filename=\"C:\\CodeNationChallenge\\answer.json\"");
+                writer.WriteLine("Content-Type: application/json");
+                writer.WriteLine();
+                writer.Write(json);
+                writer.WriteLine();
+                writer.WriteLine(boundary + "--");
             }
 
-            return false;
+            using (var response = request.GetResponse())
+            using (var stream = response.GetResponseStream())
+            using (var reader = new StreamReader(stream))
+            { string strResponse = reader.ReadToEnd(); return JObject.Parse(strResponse); }
         }
-
     }
-
-
 }
 
 

@@ -30,7 +30,7 @@ namespace CriptografiaJulioCesar
         /// </summary>
         static void Requisição()
         {
-            var requisicaoWeb = WebRequest.CreateHttp("https://api.codenation.dev/v1/challenge/dev-ps/generate-data?token=91e93d89f007589a868fabc78a7354db1b3564d0");
+            var requisicaoWeb = WebRequest.CreateHttp("https://api.codenation.dev/v1/challenge/dev-ps/generate-data?token=xxxxxxxxxxxxxxxxxxxxxxx");
             requisicaoWeb.Method = "GET";
             requisicaoWeb.UserAgent = "RequisicaoWebDemo";
 

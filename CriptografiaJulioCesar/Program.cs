@@ -174,7 +174,7 @@ namespace CriptografiaJulioCesar
             Json Model = LerObjetoDeArquivo();
 
             string json = JsonConvert.SerializeObject(Model);
-            var url = "https://api.codenation.dev/v1/challenge/dev-ps/submit-solution?token=91e93d89f007589a868fabc78a7354db1b3564d0";
+            var url = "https://api.codenation.dev/v1/challenge/dev-ps/submit-solution?token=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
             var request = (HttpWebRequest)WebRequest.Create(url);
             request.Method = "POST";
             var boundary = "---------------------------" + DateTime.Now.Ticks.ToString("x", NumberFormatInfo.InvariantInfo);
